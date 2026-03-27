@@ -1,0 +1,35 @@
+<div class="login-container" *transloco="let t">
+  <biit-progress-bar *ngIf="waiting" [type]="BiitProgressBarType.INDETERMINATE" class="loading-bar"></biit-progress-bar>
+
+  <div *ngIf="!waiting" class="login-card">
+    <div class="login-header">
+      <h2>{{ t('clubManagerAccess') }}</h2>
+      <p>{{ t('clubManagerAccessDescription') }}</p>
+    </div>
+
+    <div *ngIf="!emailSent" class="email-form">
+      <p>{{ t('clubManagerEmailPrompt') }}</p>
+      <div class="form-field">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ t('email') }}</mat-label>
+          <input matInput type="email" [(ngModel)]="email"
+                 [placeholder]="t('email')"
+                 (keyup.enter)="requestLink()"/>
+        </mat-form-field>
+      </div>
+      <div *ngIf="loginError" class="error-message">
+        {{ t('clubManagerLinkError') }}
+      </div>
+      <div class="button-row">
+        <button biit-button primary (click)="requestLink()"
+                [disabled]="!email || !email.trim()">
+          {{ t('clubManagerRequestLink') }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="emailSent" class="success-message">
+      <p>{{ t('clubManagerLinkSentDescription') }}</p>
+    </div>
+  </div>
+</div>

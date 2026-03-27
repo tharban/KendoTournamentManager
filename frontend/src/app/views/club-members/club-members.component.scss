@@ -1,0 +1,24 @@
+.club-members-view {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.table-view {
+  flex: 1;
+}
+
+.divider {
+  margin: 0 4px;
+}

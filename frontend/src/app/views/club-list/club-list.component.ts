@@ -12,6 +12,7 @@ import {ErrorHandler} from "@biit-solutions/wizardry-theme/utils";
 import {BiitSnackbarService, NotificationType} from "@biit-solutions/wizardry-theme/info";
 import {CustomDatePipe} from "../../pipes/visualization/custom-date-pipe";
 import {Constants} from "../../constants";
+import {ClubManagerService} from "../../services/club-manager.service";
 
 
 @Component({
@@ -37,10 +38,14 @@ export class ClubListComponent extends RbacBasedComponent implements AfterViewIn
   protected target: Club | null;
   protected confirmDelete: boolean = false;
   protected showRanking: boolean = false;
+  protected showClubManagerQr: boolean = false;
+  protected clubManagerQrCode: string | null = null;
+  protected clubManagerQrLink: string | null = null;
 
   constructor(private clubService: ClubService,
               private transloco: TranslocoService, rbacService: RbacService, private _datePipe: DatePipe,
-              private systemOverloadService: SystemOverloadService, private biitSnackbarService: BiitSnackbarService,) {
+              private systemOverloadService: SystemOverloadService, private biitSnackbarService: BiitSnackbarService,
+              private clubManagerService: ClubManagerService) {
     super(rbacService);
   }
 
@@ -135,6 +140,35 @@ export class ClubListComponent extends RbacBasedComponent implements AfterViewIn
       return clubs.map(club => club.name).join(', ');
     }
     return "";
+  }
+
+  sendClubManagerInvitation(club: Club): void {
+    if (!club) {
+      return;
+    }
+    this.clubManagerService.sendInvitationEmail(club.id!).subscribe({
+      next: (): void => {
+        this.biitSnackbarService.showNotification(
+          this.transloco.translate('clubManagerInvitationSent'), NotificationType.SUCCESS);
+      },
+      error: error => ErrorHandler.notify(error, this.transloco, this.biitSnackbarService)
+    });
+  }
+
+  showClubManagerAccessQr(club: Club): void {
+    if (!club) {
+      return;
+    }
+    this.clubManagerQrCode = null;
+    this.clubManagerQrLink = null;
+    this.showClubManagerQr = true;
+    this.clubManagerService.getClubManagerQr(club.id!).subscribe({
+      next: (qr: any): void => {
+        this.clubManagerQrCode = qr.base64;
+        this.clubManagerQrLink = qr.content;
+      },
+      error: error => ErrorHandler.notify(error, this.transloco, this.biitSnackbarService)
+    });
   }
 
   onSaved(club: Club) {

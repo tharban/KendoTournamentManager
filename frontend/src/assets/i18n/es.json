@@ -789,5 +789,17 @@
   "selectDiplomaRoles": "Selecciona los roles con diploma",
   "userRoleTitle": "Define el rol de la cuenta",
   "teamsSmallerThanFights": "El tamaño de los equipos debe ser igual o mayor al tamaño de los partidos.",
-  "groupLinkStored": "Se han agregado las relaciones entre grupos a la base de datos."
+  "groupLinkStored": "Se han agregado las relaciones entre grupos a la base de datos.",
+  "clubManagerAccess": "Acceso al Gestor del Club",
+  "clubManagerAccessDescription": "El acceso está protegido. Usa el enlace del correo de invitación o solicita uno nuevo.",
+  "clubManagerEmailPrompt": "Introduce la dirección de correo de tu club para recibir un enlace de acceso:",
+  "clubManagerRequestLink": "Solicitar enlace de acceso",
+  "clubManagerLinkSent": "¡Enlace enviado! Por favor, revisa tu correo.",
+  "clubManagerLinkSentDescription": "Se ha enviado un enlace de acceso a tu correo. Revisa tu bandeja de entrada.",
+  "clubManagerLinkError": "No se pudo enviar el enlace. Verifica la dirección de correo.",
+  "clubManagerQrHint": "Mostrar código QR y enlace para el gestor del club.",
+  "clubManagerSendEmail": "Enviar correo de invitación al gestor del club.",
+  "clubManagerInvitationSent": "Correo de invitación enviado al club.",
+  "clubManagerQrTitle": "QR de acceso al gestor del club",
+  "clubMembers": "Miembros del club"
 }
