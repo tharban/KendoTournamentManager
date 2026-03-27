@@ -23,6 +23,7 @@ package com.softwaremagico.kt.rest.security;
 
 
 import com.softwaremagico.kt.core.providers.AuthenticatedUserProvider;
+import com.softwaremagico.kt.core.providers.ClubManagerProvider;
 import com.softwaremagico.kt.core.providers.ParticipantProvider;
 import com.softwaremagico.kt.logger.JwtFilterLogger;
 import com.softwaremagico.kt.persistence.entities.IAuthenticatedUser;
@@ -69,24 +70,31 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final boolean checkClientIp;
     private final boolean participantAccess;
+    private final boolean clubManagerAccess;
 
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
     private final ParticipantProvider participantProvider;
 
+    private final ClubManagerProvider clubManagerProvider;
+
     private final NetworkController networkController;
 
     @Autowired
     public JwtTokenFilter(@Value("${jwt.ip.check:false}") String ipCheck, @Value("${enable.participant.access:false}") String participantAccess,
+                          @Value("${enable.club.manager.access:false}") String clubManagerAccess,
                           JwtTokenUtil jwtTokenUtil, AuthenticatedUserProvider authenticatedUserProvider,
                           ParticipantProvider participantProvider,
+                          ClubManagerProvider clubManagerProvider,
                           NetworkController networkController) {
         this.jwtTokenUtil = jwtTokenUtil;
         this.authenticatedUserProvider = authenticatedUserProvider;
         this.participantProvider = participantProvider;
+        this.clubManagerProvider = clubManagerProvider;
         checkClientIp = Boolean.parseBoolean(ipCheck);
         this.participantAccess = Boolean.parseBoolean(participantAccess);
+        this.clubManagerAccess = Boolean.parseBoolean(clubManagerAccess);
         this.networkController = networkController;
     }
 
@@ -128,15 +136,23 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         // Get user identity and set it on the spring security context
         final IAuthenticatedUser user = authenticatedUserProvider.findByUsername(jwtTokenUtil.getUsername(token)).orElse(null);
 
-        //Check if is a participant access.
-        boolean participantUser = false;
-        final UserDetails userDetails;
-        if (user == null && participantAccess) {
-            userDetails = participantProvider.findByTokenUsername(jwtTokenUtil.getUsername(token)).orElse(null);
-            participantUser = true;
-        } else {
+        //Check if is a participant or club manager access (non-standard users that skip IP/MAC checks).
+        boolean nonStandardUser = false;
+        UserDetails userDetails;
+        if (user != null) {
             //It is a standard user
             userDetails = (UserDetails) user;
+        } else if (participantAccess) {
+            userDetails = participantProvider.findByTokenUsername(jwtTokenUtil.getUsername(token)).orElse(null);
+            nonStandardUser = true;
+            if (userDetails == null && clubManagerAccess) {
+                userDetails = clubManagerProvider.findByUsername(jwtTokenUtil.getUsername(token)).orElse(null);
+            }
+        } else if (clubManagerAccess) {
+            userDetails = clubManagerProvider.findByUsername(jwtTokenUtil.getUsername(token)).orElse(null);
+            nonStandardUser = true;
+        } else {
+            userDetails = null;
         }
 
         final UsernamePasswordAuthenticationToken
@@ -146,12 +162,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         );
 
         final String userTokenIp = jwtTokenUtil.getUserIp(token);
-        if (checkClientIp && !participantUser && (userTokenIp == null || userTokenIp.isEmpty() || !getClientIpAddress(request).contains(userTokenIp))) {
+        if (checkClientIp && !nonStandardUser && (userTokenIp == null || userTokenIp.isEmpty() || !getClientIpAddress(request).contains(userTokenIp))) {
             throw new InvalidIpException(this.getClass(), "User token issued for ip '" + userTokenIp + "'.");
         }
 
         final String hostMac = networkController.getHostMac();
-        if (checkClientIp && !participantUser && hostMac != null && !hostMac.isEmpty() && !Objects.equals(jwtTokenUtil.getHostMac(token), hostMac)) {
+        if (checkClientIp && !nonStandardUser && hostMac != null && !hostMac.isEmpty() && !Objects.equals(jwtTokenUtil.getHostMac(token), hostMac)) {
             throw new InvalidMacException(this.getClass(), "User token issued for ip '" + userTokenIp + "'.");
         }
 

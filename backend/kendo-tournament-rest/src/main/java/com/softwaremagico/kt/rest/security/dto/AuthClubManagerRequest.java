@@ -1,4 +1,4 @@
-package com.softwaremagico.kt.rest.security;
+package com.softwaremagico.kt.rest.security.dto;
 
 /*-
  * #%L
@@ -21,34 +21,14 @@ package com.softwaremagico.kt.rest.security;
  * #L%
  */
 
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
+public class AuthClubManagerRequest {
+    private String passcode;
 
-@Primary
-@Service("securityService")
-public class KendoSecurityService {
-
-    public String getGuestPrivilege() {
-        return "GUEST";
+    public String getPasscode() {
+        return passcode;
     }
 
-    public String getViewerPrivilege() {
-        return "VIEWER";
-    }
-
-    public String getAdminPrivilege() {
-        return "ADMIN";
-    }
-
-    public String getEditorPrivilege() {
-        return "EDITOR";
-    }
-
-    public String getParticipantPrivilege() {
-        return "PARTICIPANT";
-    }
-
-    public String getClubManagerPrivilege() {
-        return "CLUB_MANAGER";
+    public void setPasscode(String passcode) {
+        this.passcode = passcode;
     }
 }

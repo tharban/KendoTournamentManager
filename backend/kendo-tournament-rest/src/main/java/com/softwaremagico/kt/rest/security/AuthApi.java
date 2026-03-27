@@ -25,16 +25,20 @@ import com.softwaremagico.kt.core.controller.ParticipantController;
 import com.softwaremagico.kt.core.controller.models.TemporalToken;
 import com.softwaremagico.kt.core.controller.models.Token;
 import com.softwaremagico.kt.core.providers.AuthenticatedUserProvider;
+import com.softwaremagico.kt.core.providers.ClubManagerProvider;
 import com.softwaremagico.kt.core.providers.TournamentProvider;
 import com.softwaremagico.kt.logger.JwtFilterLogger;
 import com.softwaremagico.kt.logger.KendoTournamentLogger;
 import com.softwaremagico.kt.logger.RestServerLogger;
 import com.softwaremagico.kt.persistence.entities.AuthenticatedUser;
+import com.softwaremagico.kt.persistence.entities.ClubManager;
 import com.softwaremagico.kt.persistence.entities.IAuthenticatedUser;
 import com.softwaremagico.kt.persistence.entities.Tournament;
 import com.softwaremagico.kt.rest.controllers.AuthenticatedUserController;
 import com.softwaremagico.kt.rest.exceptions.GuestDisabledException;
 import com.softwaremagico.kt.rest.exceptions.InvalidRequestException;
+import com.softwaremagico.kt.rest.exceptions.UserNotFoundException;
+import com.softwaremagico.kt.rest.security.dto.AuthClubManagerRequest;
 import com.softwaremagico.kt.rest.security.dto.AuthGuestRequest;
 import com.softwaremagico.kt.rest.security.dto.AuthRequest;
 import com.softwaremagico.kt.rest.security.dto.CreateUserRequest;
@@ -89,6 +93,7 @@ public class AuthApi {
     private final BruteForceService bruteForceService;
     private final AuthenticatedUserProvider authenticatedUserProvider;
     private final ParticipantController participantController;
+    private final ClubManagerProvider clubManagerProvider;
 
     private final TournamentProvider tournamentProvider;
 
@@ -107,6 +112,7 @@ public class AuthApi {
                    AuthenticatedUserController authenticatedUserController, BruteForceService bruteForceService,
                    AuthenticatedUserProvider authenticatedUserProvider,
                    ParticipantController participantController, TournamentProvider tournamentProvider,
+                   ClubManagerProvider clubManagerProvider,
                    @Value("${enable.guest.user:false}") String guestUsersEnabled) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;
@@ -115,6 +121,7 @@ public class AuthApi {
         this.authenticatedUserProvider = authenticatedUserProvider;
         this.participantController = participantController;
         this.tournamentProvider = tournamentProvider;
+        this.clubManagerProvider = clubManagerProvider;
         this.guestEnabled = Boolean.parseBoolean(guestUsersEnabled);
     }
 
@@ -246,6 +253,22 @@ public class AuthApi {
         return ResponseEntity.ok()
                 .headers(getLoginHeaders(jwtToken, milliseconds, jwtTokenUtil.getSession(jwtToken)))
                 .body(token.getParticipant());
+    }
+
+    @Operation(summary = "Gets a JWT Token for a club manager using a QR code or passcode.")
+    @PostMapping(value = "/public/club-manager/token", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<IAuthenticatedUser> getClubManagerToken(@RequestBody AuthClubManagerRequest request,
+                                                                   HttpServletRequest httpRequest) {
+        final String ip = getClientIP(httpRequest);
+        final ClubManager clubManager = clubManagerProvider.findByPasscode(request.getPasscode())
+                .orElseThrow(() -> new UserNotFoundException(this.getClass(), "No club manager found for the provided passcode!"));
+
+        final long jwtExpiration = jwtTokenUtil.getJwtExpirationTime();
+        final String jwtToken = jwtTokenUtil.generateAccessToken(clubManager, ip, jwtExpiration);
+
+        return ResponseEntity.ok()
+                .headers(getLoginHeaders(jwtToken, jwtExpiration, jwtTokenUtil.getSession(jwtToken)))
+                .body(clubManager);
     }
 
     @PreAuthorize("hasAuthority(@securityService.adminPrivilege)")
