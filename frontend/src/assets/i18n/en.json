@@ -797,5 +797,17 @@
   "selectDiplomaRoles": "Select the roles with diploma",
   "userRoleTitle": "Define the account's role",
   "teamsSmallerThanFights": "The size of the teams must be equal to or greater than the size of the matches.",
-  "groupLinkStored": "Relationships between pools have been added to the database."
+  "groupLinkStored": "Relationships between pools have been added to the database.",
+  "clubManagerAccess": "Club Manager Access",
+  "clubManagerAccessDescription": "Access is secured. Use the link from your invitation email or request a new one below.",
+  "clubManagerEmailPrompt": "Enter your club email address to receive a new login link:",
+  "clubManagerRequestLink": "Request Login Link",
+  "clubManagerLinkSent": "Login link sent! Please check your email.",
+  "clubManagerLinkSentDescription": "A login link has been sent to your email address. Please check your inbox and click the link to access your club members.",
+  "clubManagerLinkError": "Could not send the link. Please verify the email address and try again.",
+  "clubManagerQrHint": "Show QR code and link for club manager access.",
+  "clubManagerSendEmail": "Send club manager invitation email.",
+  "clubManagerInvitationSent": "Invitation email sent to the club.",
+  "clubManagerQrTitle": "Club Manager Access QR",
+  "clubMembers": "Club Members"
 }

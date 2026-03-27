@@ -30,7 +30,9 @@ public enum AvailableRole {
 
     PARTICIPANT,
 
-    GUEST;
+    GUEST,
+
+    CLUB_MANAGER;
 
     public static AvailableRole get(String roleName) {
         for (final AvailableRole availableRole : AvailableRole.values()) {

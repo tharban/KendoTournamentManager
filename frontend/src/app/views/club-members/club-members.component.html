@@ -1,0 +1,43 @@
+<ng-container *transloco="let t">
+  <div class="club-members-view">
+    <div class="header-bar">
+      <h2 *ngIf="clubInfo">{{ t('clubMembers') }}: {{ clubInfo.clubName }}</h2>
+      <h2 *ngIf="!clubInfo">{{ t('clubMembers') }}</h2>
+    </div>
+
+    <div class="table-view">
+      <biit-datatable #table id="club-members-table"
+                      [columns]="columns"
+                      [data]="participants"
+                      [pageSize]="pageSize"
+                      [pageSizeList]="pageSizes"
+                      [loading]="loading"
+                      scrollbarH
+                      selectable>
+        <ng-template #actions>
+          <button mat-button *ngIf="(RbacActivity.VIEW_PARTICIPANT_STATISTICS | hasPermission)"
+                  [title]="t('titleStatistics')"
+                  (click)="openStatistics(table.selectedRows[0])"
+                  [disabled]="!table.selectedRows || table.selectedRows.length !== 1">
+            <mat-icon class="kendo-icon" svgIcon="bar_chart"></mat-icon>
+          </button>
+          <mat-divider [vertical]="true" class="divider"></mat-divider>
+          <button id="qr-code" mat-button *ngIf="(RbacActivity.SEE_QR_CODE | hasPermission)"
+                  [title]="t('qrCodeHint')"
+                  (click)="showQr=true"
+                  [disabled]="!table.selectedRows || table.selectedRows.length !== 1">
+            <mat-icon class="kendo-icon" svgIcon="qr_code"></mat-icon>
+          </button>
+        </ng-template>
+      </biit-datatable>
+    </div>
+  </div>
+
+  <biit-popup id="qr-code-popup" *ngIf="showQr" no-header>
+    <participant-qr-code
+      [participant]="table.selectedRows[0]"
+      [port]="port"
+      (onClosed)="showQr=false">
+    </participant-qr-code>
+  </biit-popup>
+</ng-container>

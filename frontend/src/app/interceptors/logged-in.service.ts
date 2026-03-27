@@ -10,7 +10,7 @@ import {TournamentService} from "../services/tournament.service";
 export class LoggedInService {
 
   //Pages that will not force a login to access.
-  whiteListedPages: string[] = ["/tournaments/fights", "/participants/statistics"];
+  whiteListedPages: string[] = ["/tournaments/fights", "/participants/statistics", "/club-manager/login"];
 
   public isUserLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
@@ -42,6 +42,8 @@ export class LoggedInService {
         this.router.navigate(['/participants/statistics']);
       } else if (localStorage.getItem('account') == 'guest' && !context.startsWith('/tournaments/fights')) {
         this.router.navigate(['/tournaments/fights']);
+      } else if (localStorage.getItem('account') == 'club_manager' && !context.startsWith('/club-manager/members')) {
+        this.router.navigate(['/club-manager/members']);
       }
       return true;
     }

@@ -40,6 +40,9 @@ export class ActivityService {
         case 'guest':
           activities = activities.concat(this.getGuestActivities());
           break;
+        case 'club_manager':
+          activities = activities.concat(this.getClubManagerActivities());
+          break;
       }
     }
     return activities;
@@ -120,6 +123,18 @@ export class ActivityService {
 
   public clear(): void {
     this.activities = [];
+  }
+
+  private getClubManagerActivities(): RbacActivity[] {
+    return [
+      RbacActivity.VIEW_CLUB_MEMBERS,
+      RbacActivity.SEE_QR_CODE,
+      RbacActivity.VIEW_PARTICIPANT_STATISTICS,
+      RbacActivity.CAN_LOGOUT,
+      RbacActivity.CHANGE_LANGUAGE,
+      RbacActivity.DARK_MODE,
+      RbacActivity.WIKI_ACCESS
+    ];
   }
 
 }

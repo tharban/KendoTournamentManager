@@ -1,8 +1,8 @@
-package com.softwaremagico.kt.rest.security;
+package com.softwaremagico.kt.persistence.repositories;
 
 /*-
  * #%L
- * Kendo Tournament Manager (Rest)
+ * Kendo Tournament Manager (Persistence)
  * %%
  * Copyright (C) 2021 - 2026 Softwaremagico
  * %%
@@ -21,34 +21,22 @@ package com.softwaremagico.kt.rest.security;
  * #L%
  */
 
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
+import com.softwaremagico.kt.persistence.entities.Club;
+import com.softwaremagico.kt.persistence.entities.ClubManager;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-@Primary
-@Service("securityService")
-public class KendoSecurityService {
+import java.util.List;
+import java.util.Optional;
 
-    public String getGuestPrivilege() {
-        return "GUEST";
-    }
+@Repository
+@Transactional
+public interface ClubManagerRepository extends JpaRepository<ClubManager, Integer> {
 
-    public String getViewerPrivilege() {
-        return "VIEWER";
-    }
+    List<ClubManager> findByClub(Club club);
 
-    public String getAdminPrivilege() {
-        return "ADMIN";
-    }
+    Optional<ClubManager> findByPasscode(String passcode);
 
-    public String getEditorPrivilege() {
-        return "EDITOR";
-    }
-
-    public String getParticipantPrivilege() {
-        return "PARTICIPANT";
-    }
-
-    public String getClubManagerPrivilege() {
-        return "CLUB_MANAGER";
-    }
+    long countByPasscode(String passcode);
 }

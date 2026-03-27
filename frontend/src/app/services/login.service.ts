@@ -105,6 +105,33 @@ export class LoginService {
     });
   }
 
+  loginAsClubManager(passcode: string): Observable<AuthenticatedUser> {
+    const url: string = `${this.baseUrl}/public/club-manager/token`;
+    return this.http.post<AuthenticatedUser>(url, {passcode}, {
+      headers: new HttpHeaders({'Content-Type': 'application/json'}),
+      responseType: 'json',
+      observe: 'response'
+    }).pipe(
+      map((response: any) => {
+        response.body.jwt = response.headers.get('Authorization');
+        response.body.expires = response.headers.get('Expires');
+        response.body.session = response.headers.get('X-Session');
+        return response.body;
+      }));
+  }
+
+  setClubManagerUserSession(passcode: string, callback: (token: string, expiration: number) => void): void {
+    this.loginAsClubManager(passcode).subscribe({
+      next: (authenticatedUser: AuthenticatedUser): void => {
+        this.setAuthenticatedUser(authenticatedUser, callback);
+        localStorage.setItem('account', 'club_manager');
+      },
+      error: (): void => {
+        this.router.navigate(['/club-manager/login']);
+      }
+    });
+  }
+
   setAuthenticatedUser(authenticatedUser: AuthenticatedUser, callback: (token: string, expiration: number) => void): void {
     this.setJwtValue(authenticatedUser.jwt, authenticatedUser.expires);
     this.autoRenewToken(authenticatedUser.jwt, (authenticatedUser.expires - (new Date()).getTime()) - LoginService.JWT_RENEW_MARGIN,

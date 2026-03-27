@@ -33,6 +33,18 @@
                 [disabled]="!table.selectedRows || table.selectedRows.length != 1">
           <mat-icon class="kendo-icon" svgIcon="competitors-classification"></mat-icon>
         </button>
+        <button id="club-manager-qr" mat-button *ngIf="(RbacActivity.SEND_CLUB_MANAGER_INVITATION | hasPermission)"
+                [title]="t('clubManagerQrHint')"
+                (click)="showClubManagerAccessQr(table.selectedRows[0])"
+                [disabled]="!table.selectedRows || table.selectedRows.length != 1">
+          <mat-icon class="kendo-icon" svgIcon="qr_code"></mat-icon>
+        </button>
+        <button id="club-manager-email" mat-button *ngIf="(RbacActivity.SEND_CLUB_MANAGER_INVITATION | hasPermission)"
+                [title]="t('clubManagerSendEmail')"
+                (click)="sendClubManagerInvitation(table.selectedRows[0])"
+                [disabled]="!table.selectedRows || table.selectedRows.length != 1">
+          <mat-icon>email</mat-icon>
+        </button>
         </span>
       </ng-template>
     </biit-datatable>
@@ -65,6 +77,24 @@
       [club]="table.selectedRows[0]"
       [showIndex]="true"
       (onClosed)="showRanking=false"></competitors-ranking>
+  </biit-popup>
+
+  <biit-popup id="club-manager-qr-popup" *ngIf="showClubManagerQr" [title]="t('clubManagerQrTitle')"
+              (onClosed)="showClubManagerQr=false">
+    <div class="qr-popup-content">
+      <spinner-overlay *ngIf="!clubManagerQrCode"></spinner-overlay>
+      <div *ngIf="clubManagerQrCode" class="qr-container">
+        <img alt="QR Code" class="qr-code" [src]="clubManagerQrCode"/>
+        <a *ngIf="clubManagerQrLink" class="link" target="_blank" [href]="clubManagerQrLink">
+          {{ t('orClickHere') }}
+        </a>
+      </div>
+      <div class="button-container">
+        <button biit-button id="club-manager-qr-close" (click)="showClubManagerQr=false">
+          {{ t('close') }}
+        </button>
+      </div>
+    </div>
   </biit-popup>
 
 </ng-container>
